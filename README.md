@@ -63,3 +63,75 @@ require这个文件得到的是空对象 {}
 2.	不在最外层require，在用到的地方require，通常在函数的内部
 
 总的来说，循环以来的陷阱并不容易出现，但一旦出现了，对于新手来说还真不好定位。它的存在给大家提了个醒，要时刻注意你项目的一览关系，不要过于复杂，那一天你发现一个你明明已经exports的方法报：undefined is not a function，我们就该提醒下自己：哦，也许是它来了。
+
+exports和module.exports
+=======================
+
+require用来加载代码，而exports和module.exports则用来到处代码。
+很多新手可能米或与exports和module.exports的区别，为了更好的理解export和module.exports的关系，我们先来巩固下js的基础。示例：
+
+```js
+	
+	var a = {name: 1};
+	var b = a;
+	
+	console.log(a);
+	console.log(b);
+	
+	b.name = 2;
+	console.log(a);
+	console.log(b);
+	
+	var b = {name: 3};
+	console.log(a);
+	console.log(b);
+
+```
+
+运行js的结果：
+
+```js
+
+	{ name: 1 }
+	{ name: 1 }
+	{ name: 2 }
+	{ name: 2 }
+	{ name: 2 }
+	{ name: 3 }
+
+```
+
+解释：a是一个对象，b是对a的引用，即a和b指向同一块内存，所以前两个输出一样。当对a做修改时，即a和b指向同一块内存地址的内容发生了改变，所以a也会体现出来，所以第三四个输出一样。当b被覆盖时，b指向了一块新的内存，a还是指向原来的内存。所以最后连个输出不一样。
+
+明白了上述例子后，我们只需要知道三点就知道export和module.exports的区别了：
+
+1.	module.exports初始值为一个空对象{}
+2.	exports是指向的module.exports的引用
+3.	erquire()返回的是module.exports而不是exports
+
+Node.js官网文档的截图正式了我们的观点
+
+![](2.2.1.png)
+
+exports = module.exports = {...}
+
+我们经常看到这样的写法：
+
+```js
+
+	exports = module.exports = {...}
+
+```
+
+上面的代码等价于：
+
+```js
+
+	module.exports = {...}
+	exports = module.exports
+
+```
+
+原理很简单，：module.exports指向新的对象时，exports断开月module.exports的引用，那么通过exports = module.exports 让exports重新指向module.exports。
+
+
