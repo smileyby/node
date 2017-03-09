@@ -134,4 +134,66 @@ exports = module.exports = {...}
 
 原理很简单，：module.exports指向新的对象时，exports断开月module.exports的引用，那么通过exports = module.exports 让exports重新指向module.exports。
 
+Promise
+=======
 
+学习资料：
+
+1.	[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)(基础)
+2.	[http://liubin.org/promises-book/](http://liubin.org/promises-book/ )(开源Promise迷你书)
+3.	[http://fex.baidu.com/blog/2015/07/we-have-a-problem-with-promises/](http://fex.baidu.com/blog/2015/07/we-have-a-problem-with-promises/)(进阶)
+4.	[https://promisesaplus.com/](https://promisesaplus.com/)(官方定义规范)
+
+深入Promise
+==========
+
+*	[深入 Promise(一)——Promise 实现详解](https://zhuanlan.zhihu.com/p/25178630)
+*	[深入 Promise(二)——进击的 Promise](https://zhuanlan.zhihu.com/p/25198178)
+*	[深入 Promise(三)——命名 Promise](https://zhuanlan.zhihu.com/p/25199781)
+
+环境变量
+=======
+
+环境变量不属于Node.js的知识范畴，只不过我们在开发Node.js应用时经常与环境变量打交道，所以这里简单介绍下。
+
+环境变量（environment variables）一般是指在操作系统中用来指定操作系统运行环境的一些参数。在Mac和Linux的终端直接输入env，会列出当前的环境变量，如：USER=xxx。简单来讲，环境变量就是传递参数给运行程序的。
+
+在Node.js中，我们经常这么用：
+
+```js
+	NODE_ENV = test node app
+```
+
+通过以上命令启动程序，指定当前环境变量 `NODE_ENV` 的值为test，那么在app.js 中可通过 `process.env` 来获取环境变量
+
+```js
+	console.log(process.env.NODE_ENV) // test
+```
+
+另一个常见的例子是使用[debug](https://www.npmjs.com/package/debug)模块时：
+
+```js
+	DEBUG=* node app
+```
+
+Windows 用户需要首先设置环境变量，然后在执行程序：
+
+```js
+
+	set DEBUG=*
+	set NODE_ENV=test
+	node app
+
+```
+
+或者使用[cross-env](https://www.npmjs.com/package/cross-env)：
+
+```js
+	npm i cross-env -g
+```
+
+使用方式：
+
+```js
+	cross-env NODE_ENV=test node app
+```
