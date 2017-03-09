@@ -197,3 +197,15 @@ Windows 用户需要首先设置环境变量，然后在执行程序：
 ```js
 	cross-env NODE_ENV=test node app
 ```
+
+package.json
+============
+
+package.json 对于Node.js 应用来说是一个不可或缺的文件，它存储了该Node.js应用的名字、版本、描述、作者、入口文件、脚本、版权等等信息。npm官网有package.json每个字段的详细介绍：[https://docs.npmjs.com/files/package.json](https://docs.npmjs.com/files/package.json)。
+
+## semver
+
+语义化版本（semver）即dependencies、devDependencies和
+
+
+
