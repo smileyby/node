@@ -221,4 +221,17 @@ semver格式：`主版本号·次版本号·修订号`。版本号递增规则�
 
 
 
+npm 使用注意事项
+==============
+
+## npm init 
+
+使用`npm init`初始化一个空项目是一个好习惯，即使你对package.json及其他属性非常熟悉，`npm init`页是你开始写新的Node.js 应用或模块的一个快捷办法。`npm init` 有智能的默认选项，比如从根目录名称腿短模块名称，通过`~/.npmrc`
+读取你的信息，用你的Git设置来确定repository等等。
+
+## npm install
+
+`npm install` 是我们最常用的npm命令之一，因此我们需要好好了解下这个命令。终端输入`npm install -h`查看使用方式：
+
+
 
