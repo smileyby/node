@@ -562,6 +562,126 @@ supervisor 会监听当前目录下node和js后缀的文件，这些文件发生
 > * 柱模板结构清晰
 > * 注意：要用`<%- include('header') %>`而不是`<%= include('header') %>`
 
+## Express 浅析
+
+前面我们讲解了express中路由和模板引擎ejs的用法，但express的精髓并不在此，在于中间件的设计理念。
+
+## 中间件与next
+
+express中的中间件（middleware）就是用来处理请求的，当一个中间件处理完，可以通过调用`next()`传递给下一个中间件，如果没有调用`next()`，则请求不会往下传递，如内置的`res,render`其实就是渲染完html直接返回给客户端，没有调用`next()`，从而传递给下一个中间件。看个小李子，修改下index.js如下：
+
+```javascript
+
+	var express = require('express');
+	var app = express();
+	
+	app.use(function(req, res, next) {
+		console.log('1');
+		next();
+	});
+
+	app.use(function(req, res, next) {
+		console.log('2');
+		res.status(200).end();
+	});
+	
+	app.listen(3000);
+
+```
+
+此时访问`localhost:3000`，终端会输出：
+
+```
+
+	1
+	2
+
+```
+通过`app.use`加载中间件，在中间件中通过next将请求传递到洗衣歌中间件，next可接受一个参数接收错误信息，如果使用了`next(error)`，则会返回错误而不会传递到下一个中间件，修改index.js如下：
+
+#### index.js
+
+```
+
+	var express = require('express');
+	var app = express();
+	
+	app.use(function(req, res, next) {
+		console.log('1');
+		next(new Error('haha'));
+	});
+	
+	app.use(function(req, res, next) {
+		console.log('2');
+		res.status(200).end();
+	});
+
+	app.listen(3000);
+
+```
+
+此时访问`localhost:3000`，终端会传输错误信息：
+
+![](/img/3.4.1.png)
+
+浏览器会显示：
+
+![](/img/3.4.2.png)
+
+> 小提示：`app.use`有非常灵活的使用方式，详见[官方文档](http://expressjs.com/en/4x/api.html#app.use)
+
+express有成百上千的第三方中间件，在开发过程中我们首先应该去npm上许昭是否有类似实现的中间件，尽量避免造轮子，节省开发时间，下面给出几个常用的搜索npm模块的网站：
+
+1.	http://npmjs.com(npm 官网)
+2.	http://node-modules.com
+3.	https://npms.io
+4.	https://nodejsmodules.org
+
+>  小提示：express@4之前的版本基于connect这个模块实现的中间件的架构，express@4及以上的版本则移除了对connect的依赖自己实现了，理论上基于connect的中间件（通常以`connect-`开头，如`connect-mongo`）扔可结合express使用。
+
+> 注意：中间件的加载顺序很重要！比如Ltongchang把日志中间件放在比较靠前的位置，后面将会介绍`connect-flash`中间件是基于session的，所以需要在`express-session`后加载。
+
+## 错误处理
+
+上面的例子中，应用程序为我们自动返回了错误栈信息(express内置了一个默认的错误处理器)，假如我们想手动控制返回的错误内容，则需要加载一个自定义错误处理的中间件，修改index.js如下：
+
+#### index.js
+
+```
+
+	var express = require('express');
+	var app = express();
+	
+	app.use(function(req, res, next) {
+		console.log('1');
+		next(new Error('haha'));	
+	});
+	
+	app.use(function(req, res, next) {
+		console.log('2');
+		res.status(200).end();
+	});
+	
+	// 错误处理
+	app.use(function(err, req, res, next) {
+		console.error(error.stack);
+		res.status(500).send('Sometion broke!');
+	});
+	
+	app.listen(3000);
+
+```
+此时访问`localhost:3000`，浏览器会显示`Someting broke!`。
+
+> 小提示：关于express的错误处理，详见[官方文档](http://expressjs.com/en/guide/error-handling.html)
+
+
+	
+
+
+
+
+
 
 
 
