@@ -111,7 +111,7 @@ require用来加载代码，而exports和module.exports则用来到处代码。
 
 Node.js官网文档的截图正式了我们的观点
 
-![](2.2.1.png)
+![](/img/2.2.1.png)
 
 exports = module.exports = {...}
 
@@ -232,6 +232,353 @@ npm 使用注意事项
 ## npm install
 
 `npm install` 是我们最常用的npm命令之一，因此我们需要好好了解下这个命令。终端输入`npm install -h`查看使用方式：
+
+![](/img/2.6.1.png)
+
+可以看出：我们通过 `npm install`可以安装npm上发布的某个版本、某个tag、某个版本区间的模块，甚至可以安装本地目录、压缩包和git/github的库作为依赖。
+
+> 小提示：`npm i`是`npm install`的简写，建议使用 `npm i`。
+
+直接使用`npm i` 安装的模块时不会写入package.json的dependencies（或devDependencies），需要额外加个参数：
+
+1.	`npm i express --save`/`npm i express -S`（安装express，同时将`"express":"^4.14.0"`写入dependencies）
+2.	`npm i express --save-dev`/`npm i express -D`（安装express，同时将`"express":"^4.14.0"`写入devDependencies）
+3.	`npm i express --save --save-exact` （安装express，同时将`"express":"4.14.0"`写入dependencies）
+
+第三种方式将固定版本号写入dependencies，建议线上的Node.js应用都采取这种锁定版本号的方式，因为你不可能保证第三方模块下个小版本是没哟验证bug的，即使是流行的模块。拿Mongoose来说，Mongoose 4.1.4引入了一个bug导致调用一个文档entry的remove会删除整个集合的文档，见[https://github.com/Automattic/mongoose/blob/master/History.md#415--2015-09-01](https://github.com/Automattic/mongoose/blob/master/History.md#415--2015-09-01)
+
+> 后面会介绍更安全的 `npm shrinkwrap`的用法
+
+运行以下命令：
+
+```
+
+npm config set save-exact true 
+
+```
+
+这样每次 `npm i xxx --save` 的时候会锁定依赖的版本号，相当于加了 `--save-exact` 参数。
+
+> 小提示：`npm config set` 命令将配置写到了 ~/.npmrc 文件，运行 `npm config list` 查看。
+
+## npm scripts
+
+npm 提供了灵活而强大的 scripts 功能，见 [官方文档](https://docs.npmjs.com/misc/scripts)。
+
+npm 的 scripts 有一些内置的缩写命令，如常用的：
+
+- `npm start` 等价于 `npm run start` 
+- `npm test` 等价于 `npm run test` 
+
+## npm shrinkwrap
+
+前面说过要锁定依赖的版本，但这并不能完全防止意外情况的发生，因为锁定的只是最外一层的依赖，而里层依赖的模块的 package.json 有可能写的是 `"mongoose": "*"`。为了彻底锁定依赖的版本，让你的应用在任何机器上安装的都是同样版本的模块（不管嵌套多少层），通过运行 `npm shrinkwrap`，会在当前目录下产生一个 `npm-shrinkwrap.json`，里面包含了通过 node_modules 计算出的模块的依赖树及版本。上面的截图也显示：只要目录下有 npm-shrinkwrap.json 则运行 `npm install` 的时候会优先使用 npm-shrinkwrap.json 进行安装，没有则使用 package.json 进行安装。
+
+更多阅读：
+
+1. https://docs.npmjs.com/cli/shrinkwrap
+2. http://tech.meituan.com/npm-shrinkwrap.html
+
+> 注意: 如果 node_modules 下存在某个模块（如直接通过 `npm install xxx` 安装的）而 package.json 中没有，运行 `npm shrinkwrap` 则会报错。另外，`npm shrinkwrap` 只会生成 dependencies 的依赖，不会生成 devDependencies 的。
+
+## 初始化一个Express项目
+
+首先，我们新建一个目录myblog，在改目录下运行`npm init` 生成一个package.json，如下所示：
+
+![](/img/3.1.1.png)
+
+> 注意：括号里的是默认值，如果使用默认值则直接回车即可，否则输入自定义内容后回车。
+
+然后安装express并写入package.json:
+
+```
+
+npm i express@4.14.0 --save
+
+```
+
+新建index.js,添加如下代码：
+
+```
+
+	var express = require('express');
+	var app = express();
+
+	app.get('/', function(req, res) {
+		res.send('hello, express');
+	});
+
+	app.listen(3000);
+
+```
+
+以上代码的意思是：生成一个express实例app，挂载一个根路由器控制器，然后监听3000端口并启动程序。运行`node index`，打开浏览器访问 `localhost:3000`时，页面应显示 hello，express。
+
+这是一个最简单的一个使用费express的例子，后面会介绍路由及模板的使用。
+
+## supervisor
+
+在开发过程中，每次修改代码保存后，我们需要手动重启程序，才能查看改动的效果。使用[supervisor](https://www.npmjs.com/package/supervisor)可以解决这个繁琐的问题，全局安装supervisor：
+
+```
+	
+	npm install -g supervisor
+
+```
+
+运行 `supervisor --harmony index`启动程序，如下所示：
+
+![](/img/3.1.2.png)
+
+supervisor 会监听当前目录下node和js后缀的文件，这些文件发生改动是，suoervisor会自动重启程序。
+
+## 路由
+
+前面我们只是挂载了根路径的路由控制器，现在修改index.js如下：
+
+```
+
+	var express = require('express');
+	var app = express();
+	
+	app.get('/', function(req, res) {
+		res.send('hello, express');
+	});
+	
+	app.get('/users/:name', function(req, res) {
+		res.send('hello, ' + req.parmas.name);
+	});
+	
+	app.listen(3000);
+
+```
+
+以上代码的意思是：当访问根路径是，依然返回hello，express，当访问如 `localhost:3000/user/username` 路径时，返回hello，username。路径中`:name`起了占位符的作用，这个占位符的名字是name，可以通过`req.params.name`渠道实际的值。
+
+> 小提示： expressshiyong1le1[path-to-regexp](https://www.npmjs.com/package/path-to-regexp)模块实现的路由匹配。
+
+不难看出：req包含了请求来的县关系新，res则用来返回请求的响应，更多请查阅[express官方文档](http://expressjs.com/en/4x/api.html)。下面介绍几个常用的req的属性：
+
+*	`req.query`：解析后的url中的querystring，如`?name=haha`，req.query的值为`{name: 'haha'}`
+*	`req.params`：解析url中的占位符，如`/:name`，访问/haha,req.params的值为`{name:'haha'}`
+*	`req.body`：解析后请求体，需使用相关的模块，如[body-parser](https://www.npmjs.com/package/body-parser)，请求体为`{"name", "haha"}，则req.body`为`{name: 'haha'}`
+
+## express.Router
+
+上面只是很简单的路由使用的例子（将所有的路由控制函数都放到了index.js），但在实际开发中通常有几十甚至上百的路由，都写在index.js既臃肿又不好维护，这时可以使用express.Router实现更优雅的路由解决方案。在myblog目录下创建空文件夹routes，在routes目录下创建index.js和user.js。最后代码如下：
+
+#### index.js
+
+```
+
+	var express = require('express');
+	var app = express();
+	var indexRouter = require('./routes/index');
+	var userRouter = require('./routes/users');
+	
+	app.use('/', indexRouter);
+	app.use('./users'. userRouter);
+	
+	app.listen(3000)
+
+```
+
+#### routes/index.js
+
+```
+
+	var express = require('express');
+	var router = express.Router();
+	
+	router.get('/', function(req, res) {
+		res.send('hello, express');
+	});
+
+	module.exports = router;
+
+```
+
+#### routes/user.js
+
+```
+
+	var express = require('express');
+	var	router = express.Router();
+	 
+	touter.get('/:name', function(req, res) {
+		res.send('hello, ' + req.params.name);	
+	});
+	
+	module.exports = router;
+
+```
+
+以上代码的意思是：我们将`/`和`/users/:name`的路由分别都放在routes/index.js和routes/users.js中，每个路由文件通过生成一个express.Router实例router并导出，通过`app.use`挂载到不同的路径。这两种代码实现了相同的功能，但在实际开发中推荐使用express.Router将不同的路由分离到不同的路由文件中。
+
+## 模板引擎
+
+模板引擎（Template Engine）是一个将页面模板和数据结合起来生成html的工具。上例中，我们只是返回纯文本给浏览器，现在我们修改代码返回一个html页面给浏览器。
+
+#### ejs
+
+模板引擎有很多， [ejs](https://www.npmjs.com/package/ejs) 是其中一种，因为它使用起来十分简单，而且与express集成良好，所以我们使用ejs。安装ejs：
+
+```
+
+	npm i ejs --save
+
+```
+
+修改index.js如下：
+
+```
+
+	var path = require('path');
+	var express = require('express');
+	var app = express();
+	var indexRouter = require('./routes/index');
+	var userRouter = require('./routes/users');
+	
+	app.set('views', path.join(_dirname, 'views')); //设置存放模板的目录
+	app.set('view engine', 'ejs'); // 修改模板引擎为ejs
+	
+	app.use('/', indexRouter);
+	app.use('/users', useRouter);
+	
+	app.listen(3000);
+
+```
+
+通过`app.set`设置模板引擎为ejs和存放模板的目录。在myblog下新建views文件夹，在views下新建users.ejs，添加如下代码：
+
+#### views/user.ejs
+
+```
+
+	var express = require('express');
+	var router = express.Router();
+	
+	router.get('/:name', function(req, res) {
+		res.render('users', {
+			name: req.params.name
+		});
+	});
+	
+	module.exports = router;
+
+```
+
+通过调用`res.render`函数渲染ejs模板，res.render第一个参数是模板的名字，这里是users则会匹配view/users.ejs，第二个参数是传给模板的数据，这里传入name，则在ejs模板中可使用name。`res.render`的作用就是将模板和数据结合生成html，同事设置响应头中的 `Content-Type: text/html`,告诉浏览器我返回的是html，不是纯文本，要按html展示。现在我们访问`localhost:3000/user/haha`,如下所示：
+
+![](/img/3.3.1.png)
+
+上面代码可以看到，我们在模板`<%= name.toUpperCase() %>`中使用了JavaScript的语法`.toUpperCase()`将名字转化成大写，那这个`<%= xxx %>`是什么东西呢？ejs有三种常用标签：
+
+1.	`<% code %>`：运行JavaScript代码，不输出
+2.	`<%= code %>`：显示转以后的HTML内容
+3.	`<%- code %>`：显示原始HTML内容
+
+> 注意：`<%= code %>`和`<%- code %>`都可以是JavaScript表达式生成的字符串，当变量code为普通字符串时，两者没有区别。当code比如为`<h1>hello</h1>`这种字符串时，`<%= code %>`会原样输出`<h1>hello</h1>`，而`<%- code %>`则会显示H1大的hello字符串。
+
+下面的例子解释了`<% code %>`的用法：
+
+#### Data
+
+```
+
+	supplies: ['mop', 'broom', 'duster']
+
+```
+
+#### Template
+
+```
+
+	<ul>
+		<% for(var i = 0; i<supplies.length; i++) { %>
+			<li><%= supplies[i] %></li>
+		<% } %>
+	</ul>
+
+```
+
+#### Result
+
+```html
+	
+	<ul>
+		<li>mop</li>
+		<li>broom</li>
+		<li>duster</li>
+	</ul>
+
+```
+
+更多ejs的标签请看[官方文档](https://www.npmjs.com/package/ejs#tags)
+
+## includes
+
+我们使用模板引擎同城不是一个页面对应一个模板，这样就失去了模板的有事，而是把模板拆成可复用的模板片段组合使用，如在views下新建header.js和footer.ejs，并修改users.ejs：
+
+#### view/header.ejs
+
+```html
+
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<style type="text/css">
+				body {padding: 50px;font: 14px "Lucida Grande", helvetica, Arial, sans-serif;}
+			</style>
+		</head>
+		<body>
+
+```
+
+#### views/footer.ejs
+
+```html
+
+		</body>
+	</html>
+
+```
+
+#### views/user.ejs
+
+```
+
+	<%- include('header') %>
+		<h1><%= name.toUpperCase() %></h1>
+		<p>hello, <%= name %></p>
+	<%- include('footer') %>
+
+```
+
+我们将原来的users.ejs拆成了header.ejs和footer.ejs，并在users.ejs内置的include方法引入，从而实现了跟前一个模板文件相同的功能。
+
+> 小提示：拆分模板组件通常有两个好处：
+> * 模板可复用，减少重复代码
+> * 柱模板结构清晰
+> * 注意：要用`<%- include('header') %>`而不是`<%= include('header') %>`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
