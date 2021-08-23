@@ -1,12 +1,24 @@
-// var a = require('./module1.js');
-// console.log(a);
-// console.log(a.name);
-// a.sayName();
-// var math = require('math');
-// console.log(math);
-/**
- * 使用模块名称 引入模块时，会首先在当前 node_modules 中寻找，如果找到则直接使用，如果没有则向上一级目录寻找，直到找到为止，直到找到我们磁盘的根目录，依然没有则报错
- */
-var express = require('express');
-console.log(express);
+console.log(process.argv);
+var playerAction = process.argv[process.argv.length - 1];
+console.log(playerAction);
 
+var random = Math.random() * 3;
+if (random < 1) {
+  var computedAction = 'rock';
+} else if (random > 2) {
+  var computedAction = 'scissor';
+} else {
+  var computedAction = 'paper';
+}
+
+if (computedAction == playerAction) {
+  console.log('平局');
+} else if (
+  (computedAction === 'rock' && playerAction === 'paper') ||
+  (computedAction === 'scissor' && playerAction === 'rock') ||
+  (computedAction === 'paper' && playerAction === 'scissor')
+) {
+  console.log('你赢啦');
+} else {
+  console.log('你输啦');
+}
