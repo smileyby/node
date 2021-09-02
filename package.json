@@ -1,17 +1,24 @@
 {
   "name": "node",
   "version": "1.0.0",
-  "description": "* dir 列出当前目录下的所有文件\r * cd 目录名  进入到指定的目录\r * md 目录名  创建一个文件夹\r * rd 目录名  删除一个文件夹",
+  "description": "从输入浏览器地址到显示页面的这个过程都发生了什么",
   "main": "index.js",
-  "dependencies": {
-    "Math": "^0.0.1-security",
-    "express": "^4.17.1",
-    "math": "0.0.3"
-  },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smileyby/node.git"
+  },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/smileyby/node/issues"
+  },
+  "homepage": "https://github.com/smileyby/node#readme",
+  "dependencies": {
+    "koa": "^2.13.1",
+    "koa-mount": "^4.0.0",
+    "koa-static": "^5.0.0"
+  }
 }
