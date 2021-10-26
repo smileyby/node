@@ -1,17 +1,48 @@
 {
   "name": "node",
   "version": "1.0.0",
-  "description": "* dir 列出当前目录下的所有文件\r * cd 目录名  进入到指定的目录\r * md 目录名  创建一个文件夹\r * rd 目录名  删除一个文件夹",
-  "main": "index.js",
+  "description": "node test",
+  "private": true,
+  "egg": {
+    "declarations": true
+  },
   "dependencies": {
-    "Math": "^0.0.1-security",
-    "express": "^4.17.1",
-    "math": "0.0.3"
+    "egg": "^2.15.1",
+    "egg-mysql": "^3.0.0",
+    "egg-scripts": "^2.11.0",
+    "egg-view-ejs": "^2.0.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "autod": "^3.0.1",
+    "autod-egg": "^1.1.0",
+    "egg-bin": "^4.11.0",
+    "egg-ci": "^1.11.0",
+    "egg-mock": "^3.21.0",
+    "eslint": "^5.13.0",
+    "eslint-config-egg": "^7.1.0"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "egg-scripts start --daemon --title=egg-server-node",
+    "stop": "egg-scripts stop --title=egg-server-node",
+    "dev": "egg-bin dev",
+    "debug": "egg-bin debug",
+    "test": "npm run lint -- --fix && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod"
   },
-  "author": "",
-  "license": "ISC"
+  "ci": {
+    "version": "10"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "smileyby",
+  "license": "MIT"
 }
