@@ -36,13 +36,17 @@ module.exports = appInfo => {
     mapping: { '.html': 'ejs' }
   }
 
-  exports.mysql = {
+  config.jwt = {
+    secret: 'Nick'
+  }
+
+  config.mysql = {
     client: {
       host: 'localhost',
       port: '3306',
       user: 'root',
       password: 'yuboyang',
-      database: 'test'
+      database: 'juejue-cost'
     },
     app: true,
     agent: false
@@ -53,3 +57,4 @@ module.exports = appInfo => {
     ...userConfig,
   };
 };
+
