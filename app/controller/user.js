@@ -49,7 +49,7 @@ class UserController extends Controller {
 
   async login(){
     const { ctx, app } = this;
-    const { username, password } = ctx.request.body
+    const { username, password } = ctx.request.body;
     const userInfo = await ctx.service.user.getUserByName(username);
     if (!userInfo || !userInfo.id) {
       ctx.body = {
@@ -97,14 +97,14 @@ class UserController extends Controller {
         id: userInfo.id,
         username: userInfo.username,
         signature: userInfo.signature || '',
-        avatar: userInfo.avatar || defaultAvatar
+        avatar: userInfo.avatar
       }
     }
   }
 
   async editUserInfo(){
     const { ctx, app } = this;
-    const { signature = '' } = ctx.request.body;
+    const { signature = '', avatar = '' } = ctx.request.body;
 
     try {
       let user_id;
@@ -115,7 +115,8 @@ class UserController extends Controller {
       const userInfo = await ctx.service.user.getUserByName(decode.username);
       const result = await ctx.service.user.editUserInfo({
         ...userInfo,
-        signature
+        signature,
+        avatar
       })
 
       ctx.body = {
@@ -124,27 +125,14 @@ class UserController extends Controller {
         data: {
           id: user_id,
           signature,
-          username: userInfo.username
+          username: userInfo.username,
+          avatar
         }
       }
     } catch(err) {  
       console.log({err})
     }
   }
-
-  // async test(){
-  //   const { ctx, app } = this;
-  //   const token = ctx.request.header.authorization;
-  //   const decode = await app.jwt.verify(token, app.config.jwt.secret);
-
-  //   ctx.body = {
-  //     code: 200,
-  //     msg: '获取成功',
-  //     data: {
-  //       ...decode
-  //     }
-  //   }
-  // }
 }
 
 module.exports = UserController;

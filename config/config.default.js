@@ -20,7 +20,7 @@ module.exports = appInfo => {
 
   // add your user config here
   const userConfig = {
-    // myAppName: 'egg',
+    uploadDir: 'app/public/upload'
   };
 
   // add csrf
@@ -50,6 +50,16 @@ module.exports = appInfo => {
     },
     app: true,
     agent: false
+  }
+
+  config.multipart = {
+    mode: 'file'
+  }
+
+  config.cors = {
+    origin: '*',
+    credentials: true,
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH'
   }
 
   return {
