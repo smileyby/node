@@ -1,6 +1,6 @@
 # node
 
-node test
+node test project
 
 ## QuickStart
 
