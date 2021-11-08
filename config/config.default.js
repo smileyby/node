@@ -42,11 +42,11 @@ module.exports = appInfo => {
 
   config.mysql = {
     client: {
-      host: 'localhost',
+      host: '112.74.87.229',
       port: '3306',
       user: 'root',
-      password: 'yuboyang',
-      database: 'juejue-cost'
+      password: '123456',
+      database: 'cost-record'
     },
     app: true,
     agent: false
